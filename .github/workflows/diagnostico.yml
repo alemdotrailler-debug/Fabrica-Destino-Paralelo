@@ -1,0 +1,27 @@
+name: diagnostico-provedores
+on:
+  push:
+    branches: [diag]
+permissions:
+  contents: write
+jobs:
+  pollinations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Testar Pollinations (sem chave)
+        run: |
+          mkdir -p diag_saida
+          nproc > diag_saida/maquina.txt; free -m >> diag_saida/maquina.txt; df -h / /mnt >> diag_saida/maquina.txt
+          P="cute%20chibi%20anime%20boy%20with%20messy%20black%20hair%20navy%20blazer%20red%20scarf%20holding%20a%20glowing%20finger%2C%20colorful%20anime%20illustration%2C%20thick%20outlines"
+          for i in 1 2 3 4; do
+            S=$(date +%s)
+            C=$(curl -sS -m 120 -L -o diag_saida/pol_$i.jpg -w "%{http_code} %{content_type} %{size_download}" "https://image.pollinations.ai/prompt/$P?width=1024&height=576&model=flux&nologo=true&seed=$i" 2>&1 || true)
+            echo "img$i: $C em $(( $(date +%s)-S ))s" | tee -a diag_saida/pollinations.txt
+          done
+          echo "--- modelos:" >> diag_saida/pollinations.txt
+          curl -sS -m 30 https://image.pollinations.ai/models >> diag_saida/pollinations.txt 2>&1 || true
+      - name: Guardar resultado
+        run: |
+          git config user.name "fabrica-bot"; git config user.email "bot@users.noreply.github.com"
+          git add diag_saida && git commit -m "Diagnóstico: Pollinations" && git push origin HEAD:diag
