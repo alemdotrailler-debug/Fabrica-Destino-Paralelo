@@ -58,6 +58,8 @@ def fazer_miniaturas(R, pasta, saida):
             fundo = os.path.join(pasta, "img", f"{R.SLUG}_thumb_{i}_{k}.jpg")
             if not os.path.exists(fundo):
                 continue
+            os.makedirs(os.path.join(saida, "base"), exist_ok=True)
+            shutil.copy(fundo, os.path.join(saida, "base", f"thumb_{letra}_c{k}.jpg"))
             f = os.path.join(saida, f"thumb_{letra}_c{k}.jpg")
             miniatura.compor(fundo, t["linha1"], t["titulo"], t.get("etiqueta", ""), f, lado=t.get("lado", "esq"),
                              inclinar=t.get("inclinar", 0.0))

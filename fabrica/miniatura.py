@@ -70,14 +70,21 @@ def _ampulheta(d, x, y, s, cor):
 def _fundo(caminho, lado):
     """Personagem grande de um lado; o outro lado é uma extensão desfocada e quente da própria imagem."""
     img = Image.open(caminho).convert("RGB")
-    bg = ImageOps.fit(img, (W, H), Image.LANCZOS).filter(ImageFilter.GaussianBlur(26))
-    bg = ImageEnhance.Brightness(ImageEnhance.Color(bg).enhance(1.25)).enhance(0.72)
+    bg = ImageOps.fit(img, (W, H), Image.LANCZOS).filter(ImageFilter.GaussianBlur(30))
+    bg = ImageEnhance.Contrast(ImageEnhance.Brightness(ImageEnhance.Color(bg).enhance(1.6)).enhance(1.0)).enhance(1.12)
+    # clarão quente do lado do texto (como nas miniaturas do canal: fundo laranja vivo atrás das letras)
+    brilho = Image.new("L", (W, H), 0)
+    bd = ImageDraw.Draw(brilho)
+    cx = int(COL * 0.55) if lado == "esq" else int(W - COL * 0.55)
+    bd.ellipse([cx - 520, H // 2 - 420, cx + 520, H // 2 + 420], fill=150)
+    brilho = brilho.filter(ImageFilter.GaussianBlur(140))
+    bg = Image.composite(Image.new("RGB", (W, H), (236, 104, 18)), bg, brilho)
     fg = img.resize((H, H), Image.LANCZOS).filter(ImageFilter.UnsharpMask(radius=2.5, percent=120, threshold=2))
     fg = ImageEnhance.Contrast(ImageEnhance.Color(fg).enhance(1.18)).enhance(1.08)
     # transição suave entre a imagem nítida e o fundo desfocado, do lado do texto
     mask = Image.new("L", (H, H), 255)
     md = ImageDraw.Draw(mask)
-    faixa = 190
+    faixa = 230
     for i in range(faixa):
         a = int(255 * (i / faixa) ** 1.4)
         x = i if lado == "esq" else H - 1 - i
@@ -105,7 +112,7 @@ def compor(fundo, linha1, titulo, etiqueta, saida, lado="esq", inclinar=0.0):
     sombra = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     sd = ImageDraw.Draw(sombra)
     for i in range(COL + 120):
-        a = int(110 * (1 - i / (COL + 120)) ** 1.2)
+        a = int(70 * (1 - i / (COL + 120)) ** 1.2)
         x = i if lado == "esq" else W - 1 - i
         sd.line([(x, 0), (x, H)], fill=(0, 0, 0, a))
     im = Image.alpha_composite(im, sombra)
