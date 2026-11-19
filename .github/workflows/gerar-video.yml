@@ -1,0 +1,155 @@
+name: Gerar vídeo (Destino Paralelo)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "videos/*/roteiro.py"
+      - "pedidos.txt"
+  workflow_dispatch:
+    inputs:
+      video:
+        description: "Pasta do vídeo em videos/ (ex.: titan). Só os Shorts: titan:shorts"
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gerar-destino
+  cancel-in-progress: false
+
+jobs:
+  descobrir:
+    runs-on: ubuntu-latest
+    outputs:
+      itens: ${{ steps.quais.outputs.itens }}
+      lotes: ${{ steps.quais.outputs.lotes }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Descobrir o que gerar
+        id: quais
+        run: |
+          if [ -n "${{ github.event.inputs.video }}" ]; then
+            L="${{ github.event.inputs.video }}"
+          else
+            L=$(git diff --name-only HEAD~1 HEAD -- 'videos/*/roteiro.py' | cut -d/ -f2 | sort -u | tr '\n' ' ')
+            if git diff --name-only HEAD~1 HEAD | grep -qx pedidos.txt; then
+              L="$L $(grep -v '^#' pedidos.txt | tr '\n' ' ')"
+            fi
+          fi
+          L=$(echo $L | tr ' ' '\n' | grep -v '^$' | sort -u | tr '\n' ' ')
+          echo "pedidos: $L"
+          if [ -z "$(echo $L | tr -d ' ')" ]; then echo 'itens=[]' >> "$GITHUB_OUTPUT"; echo 'lotes=[]' >> "$GITHUB_OUTPUT"; exit 0; fi
+          python3 -m fabrica.descobrir "$L" > saida_desc.txt
+          echo "itens=$(sed -n 1p saida_desc.txt)" >> "$GITHUB_OUTPUT"
+          echo "lotes=$(sed -n 2p saida_desc.txt)" >> "$GITHUB_OUTPUT"
+          cat saida_desc.txt
+
+  imagens:
+    needs: descobrir
+    if: ${{ needs.descobrir.outputs.lotes != '[]' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        lote: ${{ fromJSON(needs.descobrir.outputs.lotes) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Cache dos modelos de imagem
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-modelos-v1
+      - name: Instalar
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install diffusers transformers accelerate peft pillow
+      - name: Gerar imagens (lote ${{ matrix.lote.lote }} de ${{ matrix.lote.total }})
+        run: |
+          nproc
+          if [ "${{ matrix.lote.modo }}" = "shorts" ]; then S="--shorts"; else S=""; fi
+          python -m fabrica.imagens "videos/${{ matrix.lote.slug }}" $S --lote ${{ matrix.lote.lote }} --total ${{ matrix.lote.total }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: img-${{ matrix.lote.nome }}-${{ matrix.lote.lote }}
+          path: trabalho/${{ matrix.lote.slug }}/img
+          retention-days: 3
+
+  montar:
+    needs: [descobrir, imagens]
+    if: ${{ needs.descobrir.outputs.itens != '[]' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        item: ${{ fromJSON(needs.descobrir.outputs.itens) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Instalar programas
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fontconfig
+          mkdir -p ~/.local/share/fonts && cp fonts/* ~/.local/share/fonts/ && fc-cache -f
+          pip install kokoro-onnx==0.6.1 soundfile numpy pillow
+      - name: Cache dos modelos de voz
+        uses: actions/cache@v4
+        with:
+          path: modelos
+          key: kokoro-v1.0
+      - name: Baixar as imagens geradas
+        uses: actions/download-artifact@v4
+        with:
+          pattern: img-${{ matrix.item.nome }}-*
+          path: trabalho/${{ matrix.item.slug }}/img
+          merge-multiple: true
+      - name: Montar o vídeo
+        run: |
+          nproc; ls trabalho/${{ matrix.item.slug }}/img | wc -l
+          if [ "${{ matrix.item.modo }}" = "shorts" ]; then S="--shorts"; else S=""; fi
+          python -m fabrica.pipeline "videos/${{ matrix.item.slug }}" $S
+      - name: Link público do vídeo (Release do GitHub)
+        if: ${{ !github.event.repository.private && github.ref_name == 'main' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v="${{ matrix.item.slug }}"
+          tag="video-$v-${{ matrix.item.modo }}-${{ github.run_number }}"
+          if [ "${{ matrix.item.modo }}" = "shorts" ]; then
+            for f in trabalho/$v/${v}_short_*.mp4; do
+              n=$(basename "$f" .mp4); sid="${n##*_}"
+              gh release create "$tag-$n" "$f" --title "$n" --notes "Short gerado pela fábrica do Destino Paralelo."
+              url="https://github.com/${{ github.repository }}/releases/download/$tag-$n/$n.mp4"
+              echo "link: $url"
+              python -c "import json,sys; f='saida/$v/short_$sid.json'; d=json.load(open(f)); d['video_url']=sys.argv[1]; json.dump(d,open(f,'w'),indent=1,ensure_ascii=False)" "$url"
+            done
+          else
+            gh release create "$tag" "trabalho/$v/$v.mp4" --title "Vídeo: $v" --notes "Gerado pela fábrica do Destino Paralelo."
+            url="https://github.com/${{ github.repository }}/releases/download/$tag/$v.mp4"
+            echo "link: $url"
+            python -c "import json,sys; f='saida/$v/info.json'; d=json.load(open(f)); d['video_url']=sys.argv[1]; json.dump(d,open(f,'w'),indent=1,ensure_ascii=False)" "$url"
+          fi
+      - name: Guardar o vídeo no branch de teste (só fora do main)
+        if: ${{ github.ref_name != 'main' }}
+        run: cp trabalho/${{ matrix.item.slug }}/*.mp4 saida/${{ matrix.item.slug }}/
+      - name: Salvar links e miniaturas no repositório
+        run: |
+          git config user.name "fabrica-bot"
+          git config user.email "fabrica-bot@users.noreply.github.com"
+          git add saida
+          git commit -m "Vídeo pronto: ${{ matrix.item.nome }}" || { echo "nada novo"; exit 0; }
+          for i in 1 2 3 4 5; do
+            git pull --rebase -X theirs origin ${{ github.ref_name }} && git push && break
+            sleep $((RANDOM % 10 + 3))
+          done

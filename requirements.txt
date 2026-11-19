@@ -1,0 +1,6 @@
+# montagem (job "montar")
+kokoro-onnx==0.6.1
+soundfile
+numpy
+pillow
+# imagens (job "imagens"): torch CPU + diffusers (instalados pelo workflow)
