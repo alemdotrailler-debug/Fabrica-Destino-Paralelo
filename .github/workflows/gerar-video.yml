@@ -73,6 +73,7 @@ jobs:
         env:
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          TOGETHER_API_KEY: ${{ secrets.TOGETHER_API_KEY }}
         run: |
           case "${{ matrix.lote.modo }}" in shorts) S="--shorts";; miniaturas) S="--miniaturas";; *) S="";; esac
           python -m fabrica.imagens "videos/${{ matrix.lote.slug }}" $S --lote ${{ matrix.lote.lote }} --total ${{ matrix.lote.total }} --nuvem
