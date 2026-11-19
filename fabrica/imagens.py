@@ -39,6 +39,15 @@ def gerar_uma(pipe, c):
     return pipe(c["prompt"], **kw).images[0]
 
 
+def registrar(saida, modo, lote, novas):
+    """Guarda de onde veio cada imagem (nuvem x local) para o relatório final."""
+    import json
+    f = os.path.join(saida, f"_fontes_{lote}_{modo}.json")
+    d = json.load(open(f)) if os.path.exists(f) else {}
+    d.update(novas)
+    json.dump(d, open(f, "w"))
+
+
 def quadro_falso(c):
     """Imagem de teste (sem modelo): degradê colorido + formas, diferente por cena."""
     import random
@@ -90,6 +99,7 @@ def main():
     log(f"{len(minhas)} imagens neste lote ({len(pendentes)} por fazer)")
     falso = os.environ.get("FABRICA_IMAGENS") == "falso"
 
+    fontes = {}
     # 1) Cloudflare (grátis, FLUX): rápida e de melhor qualidade, mas com cota diária
     if pendentes and not falso and not a.local and nuvem.disponivel():
         log("gerando pela Cloudflare (FLUX)")
@@ -97,6 +107,7 @@ def main():
             try:
                 nuvem.gerar(c["prompt"], c["w"], c["h"], c.get("passos", 4)).save(
                     os.path.join(saida, c["id"] + ".jpg"), quality=95)
+                fontes[c["id"]] = "nuvem"
                 log(f"nuvem {i+1}/{len(pendentes)} {c['id']}")
             except nuvem.CotaAcabou as e:
                 log("cota diária da Cloudflare acabou; o resto vai pelo modelo local:", e)
@@ -107,6 +118,7 @@ def main():
                     break
     elif pendentes and not a.local and not falso:
         log("Cloudflare não configurada (faltam CF_ACCOUNT_ID / CF_API_TOKEN): usando só o modelo local")
+    registrar(saida, modo, a.lote, fontes)
     if a.nuvem:
         return
 
@@ -116,7 +128,9 @@ def main():
     for i, c in enumerate(pendentes):
         img = quadro_falso(c) if falso else gerar_uma(pipe, c)
         img.save(os.path.join(saida, c["id"] + ".jpg"), quality=95)
+        fontes[c["id"]] = "local"
         log(f"imagem {i+1}/{len(pendentes)} {c['id']}")
+    registrar(saida, modo, a.lote, fontes)
 
 
 if __name__ == "__main__":

@@ -87,8 +87,8 @@ def mapa(R, pasta_video, modo):
         p = plano.producoes(R, "longo")[0]
         out.update(_distribuir(p["cenas"], _listar(base), politica))
     elif modo == "shorts":
-        for i, p in enumerate(plano.producoes(R, "shorts"), 1):
-            out.update(_distribuir(p["cenas"], _listar(os.path.join(base, f"short_{i}")), politica))
+        for p in plano.producoes(R, "shorts"):
+            out.update(_distribuir(p["cenas"], _listar(os.path.join(base, f"short_{p['n']}")), politica))
     if modo in ("longo", "miniaturas"):
         for i, _ in enumerate(getattr(R, "THUMBS", [])):
             letra = "AB"[i]

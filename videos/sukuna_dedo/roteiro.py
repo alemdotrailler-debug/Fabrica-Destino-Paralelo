@@ -7,7 +7,13 @@ TITULOS = [
     "E se Você Engolisse os 20 Dedos do Sukuna? Só Existe um Jeito de Sobreviver",  # números + curiosidade
     "E se o Sukuna Acordasse Dentro de Você? Dois Donos, Um Só Corpo",        # contraste
 ]
-PROTAG = "chibi, 1boy, short black hair, dark school uniform jacket, red scarf"
+PROTAG = ("cute chibi anime boy with messy short black hair, big brown eyes, navy blue school blazer with white trim, "
+          "long red scarf")
+# Vilão ORIGINAL (papel do "Rei das Maldições" nas imagens): mesmo desenho em todas as cenas, sem copiar personagem existente.
+VILAO = ("an original chibi ancient demon king with pale grey skin cracked with golden lines, tall curved ram horns, "
+         "a floating crown of golden thorns, glowing amber eyes with slit pupils, a sharp grin, "
+         "a long tattered teal-green royal cape, wisps of purple ghost fire")
+SHORTS_GERAR = [1, 2]      # por enquanto só os Shorts 1 e 2 (para aprovação)
 VOZ = "pm_alex"
 VELOCIDADE = 0.95
 TAGS = ["e se você", "jujutsu kaisen", "sukuna", "dedo do sukuna", "e se você engolisse o dedo do sukuna",
@@ -181,41 +187,41 @@ THUMB_CANDIDATOS = 4
 THUMB_ESCOLHA = {"A": 1, "B": 0}
 
 SHORTS = [
-    dict(titulo="E se você engolisse o dedo do Sukuna? #shorts", humor="tenso", local="dark school hallway, red glow", texto="""
-Você encontra um dedo mumificado dentro de uma caixa velha. || @H opening a wooden box, glowing finger inside
-Ele pertence ao Sukuna, o Rei das Maldições. {BOOM} || towering shadow demon king on skull throne, red eyes
-Uma maldição gigante bloqueia a saída, e seus amigos estão presos. || huge curse spirit monster blocking a hallway, scared friends
-Você só tem uma escolha: engolir o dedo. || @H holding a glowing finger near his mouth, trembling
-Você engole. {FLASH} || extreme close-up swallowing a glowing finger, red flash
-O corpo de qualquer pessoa seria destruído na hora. || human silhouette dissolving into smoke
-Mas o seu resiste. {BOOM} || @H red aura, black markings on face, glowing eyes
-Você destrói a maldição com um único soco. || @H punching giant curse monster, explosion
-E uma risada grave ecoa na sua cabeça. || shadowy laughing face behind @H
-Agora o Sukuna mora dentro de você. || @H looking at his own hands, horror
-Comente se você teria engolido o dedo. || @H questioning face, glowing finger, two paths
+    dict(titulo="E se você engolisse o dedo do Sukuna? #shorts", humor="tenso", local="", texto="""
+Você encontra um dedo mumificado dentro de uma caixa velha. || @H alone in a dark empty school hallway at night, opening an old wooden box on the floor, a shriveled mummified finger inside glowing with red light, red glow on his surprised face
+Ele pertence ao Sukuna, o Rei das Maldições. {BOOM} || @V sitting on a huge throne made of skulls, wide ominous grin, glowing amber eyes, dark red stormy sky behind him
+Uma maldição gigante bloqueia a saída, e seus amigos estão presos. || a giant spirit monster made of dark smoke with many glowing eyes and sharp teeth blocking the end of a school hallway, @H and three scared chibi classmates huddled in front of it
+Você só tem uma escolha: engolir o dedo. || @H sweating and trembling, holding the glowing mummified finger close to his mouth, eyes full of fear and resolve, red light on his face
+Você engole. {FLASH} || extreme close-up of @H with eyes shut, gulping, bright red light flashing from his throat
+O corpo de qualquer pessoa seria destruído na hora. || a chibi human silhouette crumbling into black smoke and red sparks, dark background
+Mas o seu resiste. {BOOM} || @H standing in a burst of purple ghost fire aura, eyes glowing amber, clenched fists, shockwave rings around him
+Você destrói a maldição com um único soco. || @H punching the giant smoke monster with a glowing fist, huge explosion of light, the monster shattering
+E uma risada grave ecoa na sua cabeça. || @H holding his head with both hands, behind him the translucent giant laughing face of @V in purple ghost fire
+Agora o Sukuna mora dentro de você. || @H looking at his own glowing hands in shock, the shadow of @V's horns and crown on the wall behind him
+Comente se você teria engolido o dedo. || @H with a big question mark above his head, holding the glowing finger in one hand, two glowing paths ahead of him
 """),
-    dict(titulo="O Sukuna te oferece poder por 1 minuto. Você aceita? #shorts", humor="epico", local="flooded temple of bones, red water", texto="""
-Você acorda dentro da sua própria mente. || @H waking up in dark red water
-O chão é de ossos, e a água é vermelha. || wide shot, flooded temple of bones
-No trono de crânios, o Rei das Maldições sorri para você. || demon king silhouette on skull throne, red eyes
-Ele faz uma oferta: o controle do seu corpo por um minuto por dia. || glowing red hand offering power
-Em troca, você ganha poder sem limites. || @H glowing power aura
-Mas ninguém sabe o que ele faz com o seu corpo nesse minuto. || shadow hand grabbing @H shoulder
-Você responde: não. {BOOM} || @H shouting determined, shockwave
-Ele gargalha, e a sua mente vira um campo de batalha. || laughing demon king, red water exploding
-Mas a sua vontade ainda é sua. || @H standing tall, chains of light around a shadow
-E aí, você aceitaria o pacto? || @H hesitating, close-up, red light
+    dict(titulo="O Sukuna te oferece poder por 1 minuto. Você aceita? #shorts", humor="epico", local="", texto="""
+Você acorda dentro da sua própria mente. || @H lying in shallow dark red water, slowly opening his eyes, dim crimson light
+O chão é de ossos, e a água é vermelha. || wide shot of a flooded ancient temple, floor covered with bones, red water, tall broken pillars, eerie red fog
+No trono de crânios, o Rei das Maldições sorri para você. || @V on his skull throne grinning down at tiny @H standing in the red water
+Ele faz uma oferta: o controle do seu corpo por um minuto por dia. || @V extending a hand wrapped in purple ghost fire toward @H, a floating hourglass of red sand between them
+Em troca, você ganha poder sem limites. || @H surrounded by a huge glowing power aura and lightning, a tempted but determined face
+Mas ninguém sabe o que ele faz com o seu corpo nesse minuto. || a dark shadow hand gripping @H's shoulder from behind, @H frozen in fear, sinister mood
+Você responde: não. {BOOM} || @H shouting NO with a raised fist, a white shockwave pushing the red water away
+Ele gargalha, e a sua mente vira um campo de batalha. || @V laughing loudly, the red water exploding into huge waves and flying bones
+Mas a sua vontade ainda é sua. || @H standing tall with glowing golden chains of light wrapped around a dark shadow behind him
+E aí, você aceitaria o pacto? || close-up of a hesitating @H, red light on one side of his face and golden light on the other
 """),
-    dict(titulo="Você engoliu o dedo do Sukuna. Agora tem prazo para morrer #shorts", humor="tenso", local="dark council hall, candles", texto="""
-Você virou o hospedeiro do Rei das Maldições. || @H red eyes, black markings, dark hall
-Os superiores decidem rápido: você precisa morrer. || council of shadowy elders in a dark court
-Mas o feiticeiro mais forte do mundo negocia o seu destino. || tall teacher stepping between @H and executioners, blue energy
-O plano: adiar a execução até você engolir {NUM:20|DEDOS}. {BOOM} || twenty glowing relics arranged in a circle
-Quando o Sukuna estiver completo, vocês o destroem junto com você. || dark energy swirling, ominous
-Isso significa que a sua vida tem prazo de validade. || @H looking at a countdown glowing in the sky
-Você pode fugir, ou aceitar e treinar para a guerra. || @H at a crossroads, two paths
-Você escolhe ficar. {FLASH} || @H smiling, standing tall, golden light
-Mas o Sukuna cresce a cada dedo que você engole. || huge shadow growing behind @H
-Vídeo completo no canal. || @H waving, cheerful, sparkles
+    dict(titulo="Você engoliu o dedo do Sukuna. Agora tem prazo para morrer #shorts", humor="tenso", local="", texto="""
+Você virou o hospedeiro do Rei das Maldições. || @H in a dark stone hall, eyes glowing amber, faint purple ghost fire around him, looking at his hands
+Os superiores decidem rápido: você precisa morrer. || a council of stern chibi elders in dark robes on a high bench in a candlelit court, all pointing at tiny @H
+Mas o feiticeiro mais forte do mundo negocia o seu destino. || a wise old chibi sorcerer with a long white beard and green robes holding a lantern staff, stepping between @H and hooded executioners
+O plano: adiar a execução até você engolir {NUM:20|DEDOS}. {BOOM} || twenty glowing mummified fingers arranged in a magic circle on the floor, red and gold light
+Quando o Sukuna estiver completo, vocês o destroem junto com você. || a huge swirling dark storm in the sky with the silhouette of curved horns hidden in the clouds
+Isso significa que a sua vida tem prazo de validade. || @H looking up at a giant glowing countdown clock in the dark sky, worried face
+Você pode fugir, ou aceitar e treinar para a guerra. || @H at a crossroads at dusk, the left path dark and empty, the right path glowing with training dummies
+Você escolhe ficar. {FLASH} || @H smiling confidently with a fist on his chest, golden light flash behind him
+Mas o Sukuna cresce a cada dedo que você engole. || a huge shadowy silhouette of @V's horns and grin growing behind @H
+Vídeo completo no canal. || cheerful @H waving at the viewer with sparkles around him, bright colorful background
 """),
 ]

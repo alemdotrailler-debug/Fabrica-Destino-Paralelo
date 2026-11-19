@@ -9,6 +9,21 @@ from fabrica import plano, narracao, legendas, audio, render, miniatura, importa
 from fabrica.comum import RAIZ, carregar_roteiro, log, pasta_trabalho
 
 
+def relatorio_imagens(pasta, saida, modo, importadas_n):
+    """saida/<slug>/imagens_<modo>.txt: quantas imagens vieram da Cloudflare, do modelo local e de você."""
+    import glob
+    cont, locais = {"nuvem": 0, "local": 0}, []
+    for f in glob.glob(os.path.join(pasta, "img", f"_fontes_*_{modo}.json")):
+        for id_, fonte in json.load(open(f)).items():
+            cont[fonte] = cont.get(fonte, 0) + 1
+            if fonte == "local":
+                locais.append(id_)
+    txt = (f"Imagens ({modo}): Cloudflare/FLUX = {cont['nuvem']}, modelo local = {cont['local']}, suas = {importadas_n}\n"
+           + ("Geradas pelo modelo local (estilo diferente): " + ", ".join(sorted(locais)) + "\n" if locais else ""))
+    open(os.path.join(saida, f"imagens_{modo}.txt"), "w", encoding="utf-8").write(txt)
+    log(txt.strip())
+
+
 def mmss(x):
     x = int(x)
     return f"{x // 60}:{x % 60:02d}"
@@ -106,6 +121,7 @@ def main():
     usadas = importadas.aplicar(R, a.pasta, modo, os.path.join(pasta, "img"))   # imagens suas (Tubefy etc.), se houver
     if usadas:
         log(f"{usadas} imagens importadas por você")
+    relatorio_imagens(pasta, saida, modo, usadas)
     if a.miniaturas:
         log("miniaturas:", fazer_miniaturas(R, pasta, saida))
     elif not a.shorts:
@@ -120,7 +136,8 @@ def main():
         json.dump(info, open(os.path.join(saida, "info.json"), "w"), indent=1, ensure_ascii=False)
         log("pronto:", mp4, info["duracao"])
     else:
-        for i, prod in enumerate(plano.producoes(R, "shorts"), 1):
+        for prod in plano.producoes(R, "shorts"):
+            i = prod["n"]
             mp4 = os.path.join(pasta, prod["id"] + ".mp4")
             tempos, _ = produzir(R, prod, pasta, mp4)
             s = prod["short"]

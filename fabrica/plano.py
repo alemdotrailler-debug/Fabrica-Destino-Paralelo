@@ -48,7 +48,7 @@ def _cenas_do_bloco(R, bloco, pid, bi, orient, inicio, nome_bloco, titulo_bloco)
             continue
         fala, _, extra = linha.partition("||")
         texto, eventos, numero = limpar(fala)
-        extra = extra.strip().replace("@H", protag)
+        extra = extra.strip().replace("@H", protag).replace("@V", getattr(R, "VILAO", ""))
         if not extra:
             extra = f"{CAMERAS[n % len(CAMERAS)]}, {protag}, {EMOCOES[n % len(EMOCOES)]}"
         prompt = ", ".join(x for x in (extra, local, ESTILO) if x)
@@ -71,10 +71,13 @@ def producoes(R, modo="longo"):
             n += len(c); cenas += c
         P.append(dict(id=R.SLUG, orient="h", cenas=cenas, titulo=R.TITULO))
     else:
+        ativos = getattr(R, "SHORTS_GERAR", None)          # ex.: [1, 2] = só os Shorts 1 e 2
         for i, s in enumerate(getattr(R, "SHORTS", []), 1):
+            if ativos and i not in ativos:
+                continue
             pid = f"{R.SLUG}_short_{i}"
             c = _cenas_do_bloco(R, s, pid, 0, "v", 0, None, None)
-            P.append(dict(id=pid, orient="v", cenas=c, titulo=s.get("titulo", pid), short=s))
+            P.append(dict(id=pid, orient="v", cenas=c, titulo=s.get("titulo", pid), short=s, n=i))
     return P
 
 
@@ -84,7 +87,7 @@ def miniaturas(R):
     protag = getattr(R, "PROTAG", "")
     n = getattr(R, "THUMB_CANDIDATOS", 4)
     for i, t in enumerate(getattr(R, "THUMBS", [])):
-        base = ", ".join(x for x in (t["prompt"].replace("@H", protag), ESTILO) if x)
+        base = ", ".join(x for x in (t["prompt"].replace("@H", protag).replace("@V", getattr(R, "VILAO", "")), ESTILO) if x)
         for k in range(n):
             out.append(dict(id=f"{R.SLUG}_thumb_{i}_{k}", prompt=base, seed=int(md5(base + str(k), 8), 16) % 2**31,
                             w=512, h=512, orient="h", passos=4))
