@@ -4,7 +4,7 @@ Precisa de duas variáveis (no GitHub: Settings > Secrets > Actions):
   CF_ACCOUNT_ID  e  CF_API_TOKEN
 Plano grátis: cota diária. Quando a cota acaba, levanta CotaAcabou e a fábrica completa com o modelo local.
 """
-import base64, io, json, os, time, urllib.error, urllib.request
+import base64, io, json, os, random, time, urllib.error, urllib.request
 
 MODELO = "@cf/black-forest-labs/flux-1-schnell"
 _ACEITA_TAMANHO = True          # vira False se a API recusar width/height
@@ -125,9 +125,9 @@ def _gerar_together(prompt, w, h, passos=4):
             if e.code == 402 or any(k in low for k in ("credit", "quota", "limit exceeded", "daily")) and e.code != 429:
                 raise CotaAcabou("Together: " + txt[:160])
             if e.code == 429:
-                if tent >= 5:
+                if tent >= 14:      # o plano grátis aceita ~10 imagens/min: as outras fatias esperam a vez
                     raise CotaAcabou("Together: limite de uso (429): " + txt[:120])
-                time.sleep(12 * tent)
+                time.sleep(8 + random.random() * 10)
                 continue
             if e.code >= 500 and tent < 4:
                 time.sleep(8 * tent)
