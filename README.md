@@ -19,6 +19,13 @@ Em vez do modelo grátis, você pode mandar as imagens prontas:
 3. Cenas sem imagem repetem a anterior (padrão) — ou, com `IMAGENS_FALTANTES = "gerar"` no roteiro, o modelo grátis completa.
 A fábrica só gera o que não foi enviado; narração, legendas, selos, números, edição e miniaturas continuam automáticos.
 
+## Imagens pela Cloudflare (FLUX, grátis)
+A fábrica tenta primeiro a API grátis da Cloudflare Workers AI (modelo FLUX schnell: mais bonito e rápido). Quando a cota
+diária acaba (ou se não houver chave), completa com o modelo local SD-Turbo no próprio GitHub.
+Chaves (nunca no chat): no repositório, Settings > Secrets and variables > Actions > New repository secret:
+`CF_ACCOUNT_ID` (ID da conta Cloudflare) e `CF_API_TOKEN` (token com permissão Workers AI).
+Obs.: se a cota acabar no meio, parte das imagens do vídeo sai pelo modelo local (estilo um pouco diferente).
+
 ## Formato do roteiro
 ```python
 SLUG = "titan"; TITULO = "E se Você Herdasse o Titã Fundador?"

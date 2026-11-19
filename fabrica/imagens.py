@@ -5,7 +5,7 @@ Cada cena vira trabalho/<slug>/img/<id>.jpg. Se o arquivo já existe, é pulado 
 Com FABRICA_IMAGENS=falso gera quadros de teste (só para testar a montagem sem modelo).
 """
 import argparse, os, sys
-from fabrica import plano, importadas
+from fabrica import plano, importadas, nuvem
 from fabrica.comum import RAIZ, carregar_roteiro, log, pasta_trabalho
 
 # Modelo escolhido após testes no GitHub: SD-Turbo (2 passos, ~36 s/imagem em 768x432 na CPU) deu o melhor visual
@@ -64,6 +64,9 @@ def main():
     ap.add_argument("pasta")
     ap.add_argument("--shorts", action="store_true")
     ap.add_argument("--miniaturas", action="store_true")
+    ap.add_argument("--nuvem", action="store_true", help="só a API da Cloudflare (não carrega o modelo local)")
+    ap.add_argument("--local", action="store_true", help="só o modelo local (pula a Cloudflare)")
+    ap.add_argument("--contar", action="store_true", help="só diz quantas imagens ainda faltam neste lote")
     ap.add_argument("--lote", type=int, default=0)
     ap.add_argument("--total", type=int, default=1)
     a = ap.parse_args()
@@ -73,9 +76,42 @@ def main():
     os.makedirs(saida, exist_ok=True)
     todas = importadas.faltantes(R, a.pasta, modo)          # o que você importou não precisa ser gerado
     minhas = [c for i, c in enumerate(todas) if i % a.total == a.lote]
-    pendentes = [c for c in minhas if not os.path.exists(os.path.join(saida, c["id"] + ".jpg"))]
+
+    def faltam():
+        return [c for c in minhas if not os.path.exists(os.path.join(saida, c["id"] + ".jpg"))]
+
+    if a.contar:
+        n = len(faltam())
+        print(f"restam={n}")
+        if os.environ.get("GITHUB_OUTPUT"):
+            open(os.environ["GITHUB_OUTPUT"], "a").write(f"restam={n}\n")
+        return
+    pendentes = faltam()
     log(f"{len(minhas)} imagens neste lote ({len(pendentes)} por fazer)")
     falso = os.environ.get("FABRICA_IMAGENS") == "falso"
+
+    # 1) Cloudflare (grátis, FLUX): rápida e de melhor qualidade, mas com cota diária
+    if pendentes and not falso and not a.local and nuvem.disponivel():
+        log("gerando pela Cloudflare (FLUX)")
+        for i, c in enumerate(pendentes):
+            try:
+                nuvem.gerar(c["prompt"], c["w"], c["h"], c.get("passos", 4)).save(
+                    os.path.join(saida, c["id"] + ".jpg"), quality=95)
+                log(f"nuvem {i+1}/{len(pendentes)} {c['id']}")
+            except nuvem.CotaAcabou as e:
+                log("cota diária da Cloudflare acabou; o resto vai pelo modelo local:", e)
+                break
+            except nuvem.ErroNuvem as e:
+                log("Cloudflare falhou nesta imagem (vai pelo modelo local):", e)
+                if "acesso negado" in str(e):
+                    break
+    elif pendentes and not a.local and not falso:
+        log("Cloudflare não configurada (faltam CF_ACCOUNT_ID / CF_API_TOKEN): usando só o modelo local")
+    if a.nuvem:
+        return
+
+    # 2) modelo local (SD-Turbo na CPU) para o que sobrou
+    pendentes = faltam()
     pipe = None if falso or not pendentes else carregar_modelo()
     for i, c in enumerate(pendentes):
         img = quadro_falso(c) if falso else gerar_uma(pipe, c)

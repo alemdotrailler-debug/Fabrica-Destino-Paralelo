@@ -62,20 +62,37 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Instalar o básico
+        run: pip install pillow
+      - name: Gerar pela Cloudflare (FLUX, grátis, rápido) - lote ${{ matrix.lote.lote }} de ${{ matrix.lote.total }}
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        run: |
+          case "${{ matrix.lote.modo }}" in shorts) S="--shorts";; miniaturas) S="--miniaturas";; *) S="";; esac
+          python -m fabrica.imagens "videos/${{ matrix.lote.slug }}" $S --lote ${{ matrix.lote.lote }} --total ${{ matrix.lote.total }} --nuvem
+      - name: Conferir o que falta
+        id: resta
+        run: |
+          case "${{ matrix.lote.modo }}" in shorts) S="--shorts";; miniaturas) S="--miniaturas";; *) S="";; esac
+          python -m fabrica.imagens "videos/${{ matrix.lote.slug }}" $S --lote ${{ matrix.lote.lote }} --total ${{ matrix.lote.total }} --contar
       - name: Cache dos modelos de imagem
+        if: ${{ steps.resta.outputs.restam != '0' }}
         uses: actions/cache@v4
         with:
           path: ~/.cache/huggingface
           key: hf-modelos-v1
-      - name: Instalar
+      - name: Instalar o modelo local (só se a Cloudflare não deu conta de tudo)
+        if: ${{ steps.resta.outputs.restam != '0' }}
         run: |
           pip install torch --index-url https://download.pytorch.org/whl/cpu
-          pip install diffusers transformers accelerate peft pillow
-      - name: Gerar imagens (lote ${{ matrix.lote.lote }} de ${{ matrix.lote.total }})
+          pip install diffusers transformers accelerate peft
+      - name: Completar com o modelo local (SD-Turbo)
+        if: ${{ steps.resta.outputs.restam != '0' }}
         run: |
           nproc
           case "${{ matrix.lote.modo }}" in shorts) S="--shorts";; miniaturas) S="--miniaturas";; *) S="";; esac
-          python -m fabrica.imagens "videos/${{ matrix.lote.slug }}" $S --lote ${{ matrix.lote.lote }} --total ${{ matrix.lote.total }}
+          python -m fabrica.imagens "videos/${{ matrix.lote.slug }}" $S --lote ${{ matrix.lote.lote }} --total ${{ matrix.lote.total }} --local
       - uses: actions/upload-artifact@v4
         with:
           name: img-${{ matrix.lote.nome }}-${{ matrix.lote.lote }}
