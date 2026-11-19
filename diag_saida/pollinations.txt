@@ -1,0 +1,6 @@
+img1: 200 image/jpeg 69343 em 4s
+img2: 402 application/json; charset=utf-8 323 em 1s
+img3: 402 application/json; charset=utf-8 323 em 0s
+img4: 402 application/json; charset=utf-8 323 em 0s
+--- modelos:
+["sana"]
