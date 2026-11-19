@@ -79,18 +79,21 @@ def producoes(R, modo="longo"):
 
 
 def miniaturas(R):
-    """Imagens de fundo das miniaturas (A/B) — viram cenas extras para a geração."""
+    """Imagens-base das miniaturas: vários candidatos por miniatura (quadrado 512x512, mais nítido)."""
     out = []
     protag = getattr(R, "PROTAG", "")
+    n = getattr(R, "THUMB_CANDIDATOS", 4)
     for i, t in enumerate(getattr(R, "THUMBS", [])):
-        prompt = ", ".join(x for x in (t["prompt"].replace("@H", protag), ESTILO) if x)
-        w, h = GERACAO["h"]
-        out.append(dict(id=f"{R.SLUG}_thumb_{i}", prompt=prompt, seed=int(md5(prompt, 8), 16) % 2**31,
-                        w=w, h=h, orient="h"))
+        base = ", ".join(x for x in (t["prompt"].replace("@H", protag), ESTILO) if x)
+        for k in range(n):
+            out.append(dict(id=f"{R.SLUG}_thumb_{i}_{k}", prompt=base, seed=int(md5(base + str(k), 8), 16) % 2**31,
+                            w=512, h=512, orient="h", passos=4))
     return out
 
 
 def todas_as_imagens(R, modo="longo"):
+    if modo == "miniaturas":
+        return miniaturas(R)
     imgs = []
     for p in producoes(R, modo):
         imgs += p["cenas"]

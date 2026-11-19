@@ -32,7 +32,7 @@ def carregar_modelo():
 
 def gerar_uma(pipe, c):
     import torch
-    kw = dict(num_inference_steps=CONFIG["passos"], guidance_scale=CONFIG["gs"], width=c["w"], height=c["h"],
+    kw = dict(num_inference_steps=c.get("passos", CONFIG["passos"]), guidance_scale=CONFIG["gs"], width=c["w"], height=c["h"],
               generator=torch.Generator().manual_seed(c["seed"]))
     if CONFIG["familia"] != "turbo":
         kw["negative_prompt"] = plano.NEGATIVO
@@ -63,11 +63,12 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("pasta")
     ap.add_argument("--shorts", action="store_true")
+    ap.add_argument("--miniaturas", action="store_true")
     ap.add_argument("--lote", type=int, default=0)
     ap.add_argument("--total", type=int, default=1)
     a = ap.parse_args()
     R = carregar_roteiro(a.pasta)
-    modo = "shorts" if a.shorts else "longo"
+    modo = "shorts" if a.shorts else ("miniaturas" if a.miniaturas else "longo")
     saida = os.path.join(pasta_trabalho(R.SLUG), "img")
     os.makedirs(saida, exist_ok=True)
     todas = plano.todas_as_imagens(R, modo)

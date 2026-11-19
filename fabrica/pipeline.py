@@ -47,6 +47,28 @@ def produzir(R, prod, pasta, saida_mp4):
     return tempos, bl
 
 
+def fazer_miniaturas(R, pasta, saida):
+    """Compõe todos os candidatos de cada miniatura (thumb_A_c0.jpg...) e a escolhida (thumb_A.jpg)."""
+    escolha = getattr(R, "THUMB_ESCOLHA", {})
+    n = getattr(R, "THUMB_CANDIDATOS", 4)
+    principais = []
+    for i, t in enumerate(getattr(R, "THUMBS", [])):
+        letra = "AB"[i]
+        for k in range(n):
+            fundo = os.path.join(pasta, "img", f"{R.SLUG}_thumb_{i}_{k}.jpg")
+            if not os.path.exists(fundo):
+                continue
+            f = os.path.join(saida, f"thumb_{letra}_c{k}.jpg")
+            miniatura.compor(fundo, t["linha1"], t["titulo"], t.get("etiqueta", ""), f, lado=t.get("lado", "esq"),
+                             inclinar=t.get("inclinar", 0.0))
+        k = escolha.get(letra, 0)
+        origem = os.path.join(saida, f"thumb_{letra}_c{k}.jpg")
+        if os.path.exists(origem):
+            shutil.copy(origem, os.path.join(saida, f"thumb_{letra}.jpg"))
+            principais.append(f"thumb_{letra}.jpg")
+    return principais
+
+
 def descricao_longa(R, bl):
     caps = []
     for k, b in enumerate(bl):
@@ -69,22 +91,19 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("pasta")
     ap.add_argument("--shorts", action="store_true")
+    ap.add_argument("--miniaturas", action="store_true")
     a = ap.parse_args()
     R = carregar_roteiro(a.pasta)
     pasta = pasta_trabalho(R.SLUG)
     saida = os.path.join(RAIZ, "saida", R.SLUG)
     os.makedirs(saida, exist_ok=True)
-    if not a.shorts:
+    if a.miniaturas:
+        log("miniaturas:", fazer_miniaturas(R, pasta, saida))
+    elif not a.shorts:
         prod = plano.producoes(R, "longo")[0]
         mp4 = os.path.join(pasta, R.SLUG + ".mp4")
         tempos, bl = produzir(R, prod, pasta, mp4)
-        thumbs = []
-        for i, t in enumerate(getattr(R, "THUMBS", [])):
-            fundo = os.path.join(pasta, "img", f"{R.SLUG}_thumb_{i}.jpg")
-            letra = "AB"[i]
-            f = os.path.join(saida, f"thumb_{letra}.jpg")
-            miniatura.compor(fundo, t["linha1"], t["titulo"], t.get("etiqueta", ""), f)
-            thumbs.append(os.path.basename(f))
+        thumbs = fazer_miniaturas(R, pasta, saida)
         info = dict(slug=R.SLUG, titulo=R.TITULO, titulos=getattr(R, "TITULOS", [R.TITULO]),
                     descricao=descricao_longa(R, bl), tags=getattr(R, "TAGS", []),
                     comentario_fixado=getattr(R, "COMENTARIO", ""), duracao=mmss(tempos[-1]["t1"]),

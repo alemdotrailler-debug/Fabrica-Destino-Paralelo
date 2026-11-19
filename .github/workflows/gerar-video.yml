@@ -74,7 +74,7 @@ jobs:
       - name: Gerar imagens (lote ${{ matrix.lote.lote }} de ${{ matrix.lote.total }})
         run: |
           nproc
-          if [ "${{ matrix.lote.modo }}" = "shorts" ]; then S="--shorts"; else S=""; fi
+          case "${{ matrix.lote.modo }}" in shorts) S="--shorts";; miniaturas) S="--miniaturas";; *) S="";; esac
           python -m fabrica.imagens "videos/${{ matrix.lote.slug }}" $S --lote ${{ matrix.lote.lote }} --total ${{ matrix.lote.total }}
       - uses: actions/upload-artifact@v4
         with:
@@ -117,7 +117,7 @@ jobs:
       - name: Montar o vídeo
         run: |
           nproc; ls trabalho/${{ matrix.item.slug }}/img | wc -l
-          if [ "${{ matrix.item.modo }}" = "shorts" ]; then S="--shorts"; else S=""; fi
+          case "${{ matrix.item.modo }}" in shorts) S="--shorts";; miniaturas) S="--miniaturas";; *) S="";; esac
           python -m fabrica.pipeline "videos/${{ matrix.item.slug }}" $S
       - name: Link público do vídeo (Release do GitHub)
         if: ${{ !github.event.repository.private && github.ref_name == 'main' }}
@@ -140,9 +140,6 @@ jobs:
             echo "link: $url"
             python -c "import json,sys; f='saida/$v/info.json'; d=json.load(open(f)); d['video_url']=sys.argv[1]; json.dump(d,open(f,'w'),indent=1,ensure_ascii=False)" "$url"
           fi
-      - name: Guardar o vídeo no branch de teste (só fora do main)
-        if: ${{ github.ref_name != 'main' }}
-        run: cp trabalho/${{ matrix.item.slug }}/*.mp4 saida/${{ matrix.item.slug }}/
       - name: Salvar links e miniaturas no repositório
         run: |
           git config user.name "fabrica-bot"

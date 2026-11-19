@@ -13,7 +13,7 @@ def main(pedidos):
     itens, lotes = [], []
     for p in pedidos.split():
         slug, _, modo = p.partition(":")
-        modo = "shorts" if modo == "shorts" else "longo"
+        modo = modo if modo in ("shorts", "miniaturas") else "longo"
         R = carregar_roteiro(os.path.join(RAIZ, "videos", slug))
         n = len(plano.todas_as_imagens(R, modo))
         total = max(1, min(8, math.ceil(n / POR_LOTE)))

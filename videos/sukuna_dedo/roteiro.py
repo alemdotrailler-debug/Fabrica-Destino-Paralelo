@@ -170,11 +170,15 @@ Uma escolha. Mil consequências. Até a próxima. || @H smiling, waving goodbye,
 ]
 
 THUMBS = [
-    dict(linha1="E SE VOCÊ ENGOLISSE O", titulo="DEDO DO\nSUKUNA?", etiqueta="20 DEDOS AMALDIÇOADOS",
-         prompt="@H portrait, big shocked eyes, whole face visible on the right half of the frame, red glowing finger floating on the left, black demon shadow behind, dark red background"),
-    dict(linha1="O REI DAS MALDIÇÕES ACORDOU", titulo="VOCÊ É O\nHOSPEDEIRO", etiqueta="SÓ UM JEITO DE SOBREVIVER",
-         prompt="@H portrait, red glowing eyes, black markings on face, whole face visible on the right half of the frame, giant demon shadow with red eyes behind, dark purple and red lightning"),
+    # A: texto à esquerda, herói à direita (padrão "Titã Fundador")
+    dict(linha1="E SE VOCÊ ENGOLISSE O", titulo="DEDO DO\nSUKUNA?", etiqueta="20 DEDOS AMALDIÇOADOS", lado="esq",
+         prompt="@H portrait close-up, huge shiny shocked eyes, open mouth, face filling the frame, glowing red finger floating near, dark demon shadow with red eyes behind, vivid orange and red explosion background"),
+    # B: texto à direita, herói à esquerda (padrão "Death Note")
+    dict(linha1="O REI DAS MALDIÇÕES ACORDOU", titulo="VOCÊ É O\nHOSPEDEIRO", etiqueta="SÓ UM JEITO DE SOBREVIVER", lado="dir", inclinar=-0.08,
+         prompt="@H portrait close-up, glowing red eyes, black markings on face, evil grin, face filling the frame, giant demon shadow behind, purple and red lightning background"),
 ]
+THUMB_CANDIDATOS = 4
+THUMB_ESCOLHA = {"A": 0, "B": 0}
 
 SHORTS = [
     dict(titulo="E se você engolisse o dedo do Sukuna? #shorts", humor="tenso", local="dark school hallway, red glow", texto="""
