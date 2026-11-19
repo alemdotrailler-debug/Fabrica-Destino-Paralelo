@@ -178,7 +178,7 @@ THUMBS = [
          prompt="@H portrait close-up, glowing red eyes, black markings on face, evil grin, face filling the frame, giant demon shadow behind, purple and red lightning background"),
 ]
 THUMB_CANDIDATOS = 4
-THUMB_ESCOLHA = {"A": 0, "B": 0}
+THUMB_ESCOLHA = {"A": 1, "B": 0}
 
 SHORTS = [
     dict(titulo="E se você engolisse o dedo do Sukuna? #shorts", humor="tenso", local="dark school hallway, red glow", texto="""
