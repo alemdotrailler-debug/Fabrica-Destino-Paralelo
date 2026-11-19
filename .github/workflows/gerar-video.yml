@@ -52,6 +52,16 @@ jobs:
           echo "itens=$(sed -n 1p saida_desc.txt)" >> "$GITHUB_OUTPUT"
           echo "lotes=$(sed -n 2p saida_desc.txt)" >> "$GITHUB_OUTPUT"
           cat saida_desc.txt
+      - name: Preparar a GPU reserva na Modal (só se houver imagens a gerar e a chave existir)
+        if: ${{ steps.quais.outputs.lotes != '[]' }}
+        continue-on-error: true
+        env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+        run: |
+          if [ -z "$MODAL_TOKEN_ID" ] || [ -z "$MODAL_TOKEN_SECRET" ]; then echo "Modal não configurada: pulando"; exit 0; fi
+          pip install -q modal
+          modal deploy fabrica/modal_flux.py
 
   imagens:
     needs: descobrir
@@ -68,11 +78,13 @@ jobs:
         with:
           python-version: "3.12"
       - name: Instalar o básico
-        run: pip install pillow
-      - name: Gerar pela Cloudflare (FLUX, grátis, rápido) - lote ${{ matrix.lote.lote }} de ${{ matrix.lote.total }}
+        run: pip install pillow modal
+      - name: Gerar pela nuvem (FLUX - Cloudflare, depois Modal) - lote ${{ matrix.lote.lote }} de ${{ matrix.lote.total }}
         env:
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
           TOGETHER_API_KEY: ${{ secrets.TOGETHER_API_KEY }}
         run: |
           case "${{ matrix.lote.modo }}" in shorts) S="--shorts";; miniaturas) S="--miniaturas";; *) S="";; esac

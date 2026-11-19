@@ -102,24 +102,24 @@ def main():
     fontes = {}
     # 1) Cloudflare (grátis, FLUX): rápida e de melhor qualidade, mas com cota diária
     if pendentes and not falso and not a.local and nuvem.disponivel():
-        log("gerando pela Cloudflare (FLUX)")
+        log("gerando pela nuvem (FLUX: Cloudflare, depois Modal/Together se a cota acabar)")
         for i, c in enumerate(pendentes):
             try:
                 nuvem.gerar(c["prompt"], c["w"], c["h"], c.get("passos", 4)).save(
                     os.path.join(saida, c["id"] + ".jpg"), quality=95)
-                fontes[c["id"]] = "nuvem"
+                fontes[c["id"]] = "nuvem:" + (nuvem.ULTIMO or "?")
                 log(f"nuvem {i+1}/{len(pendentes)} {c['id']}")
             except nuvem.CotaAcabou as e:
-                log("cota diária da Cloudflare acabou:", e)
+                log("cota da nuvem acabou:", e)
                 fontes["_erro_nuvem"] = "COTA: " + str(e)[:300]
                 break
             except nuvem.ErroNuvem as e:
-                log("Cloudflare falhou nesta imagem:", e)
+                log("nuvem falhou nesta imagem:", e)
                 fontes["_erro_nuvem"] = str(e)[:300]
                 if "acesso negado" in str(e):
                     break
     elif pendentes and not a.local and not falso:
-        log("Cloudflare não configurada (faltam CF_ACCOUNT_ID / CF_API_TOKEN): usando só o modelo local")
+        log("nenhum provedor de nuvem configurado (Cloudflare/Modal/Together): usando só o modelo local")
     registrar(saida, modo, a.lote, fontes)
     if a.nuvem:
         return

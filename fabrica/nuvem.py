@@ -26,8 +26,12 @@ def _tem_together():
     return bool(os.environ.get("TOGETHER_API_KEY"))
 
 
+def _tem_modal():
+    return bool(os.environ.get("MODAL_TOKEN_ID") and os.environ.get("MODAL_TOKEN_SECRET"))
+
+
 def disponivel():
-    return _tem_cf() or _tem_together()
+    return _tem_cf() or _tem_modal() or _tem_together()
 
 
 def _texto(prompt):
@@ -139,18 +143,56 @@ def _gerar_together(prompt, w, h, passos=4):
             time.sleep(8 * tent)
 
 
+# ---------------------------------------------------------------- Modal (FLUX numa GPU; US$ 30 grátis por mês)
+_MODAL_OBJ = None
+
+
+def _gerar_modal(prompt, w, h, passos=4):
+    global _MODAL_OBJ
+    from PIL import Image, ImageOps
+    try:
+        import modal
+    except ImportError:
+        raise ErroNuvem("Modal: biblioteca 'modal' não instalada (pip install modal)")
+    ultimo = ""
+    for tent in range(1, 4):
+        try:
+            if _MODAL_OBJ is None:
+                _MODAL_OBJ = modal.Cls.from_name(os.environ.get("MODAL_APP", "fabrica-flux"), "Flux")()
+            dados = _MODAL_OBJ.gerar.remote(_texto(prompt), w, h, passos)
+            im = Image.open(io.BytesIO(dados)).convert("RGB")
+            if abs(w / h - im.width / im.height) > 0.02:
+                alvo = (im.width, round(im.width * h / w)) if w >= h else (round(im.height * w / h), im.height)
+                im = ImageOps.fit(im, alvo, Image.LANCZOS)
+            return im if im.width >= w else im.resize((w, h), Image.LANCZOS)
+        except Exception as e:          # a Modal levanta vários tipos de erro; classificamos pelo texto
+            ultimo = f"{type(e).__name__}: {e}"
+            low = ultimo.lower()
+            if any(k in low for k in ("billing", "credit", "insufficient", "quota", "spend limit", "payment")):
+                raise CotaAcabou("Modal: " + ultimo[:200])
+            if any(k in low for k in ("authentication", "unauthorized", "invalid token", "token id", "not found", "no app")):
+                raise ErroNuvem("Modal: acesso negado ou app não publicado (" + ultimo[:160] + ")")
+            time.sleep(10 * tent)
+    raise ErroNuvem("Modal: " + ultimo[:200])
+
+
 # ---------------------------------------------------------------- cadeia de provedores
+ULTIMO = ""          # nome do provedor que gerou a última imagem
 _ESGOTADOS = set()
+_PROVEDORES = (("Cloudflare", _tem_cf, _gerar_cf), ("Modal", _tem_modal, _gerar_modal), ("Together", _tem_together, _gerar_together))
 
 
 def gerar(prompt, w, h, passos=4):
-    """Tenta a Cloudflare e, se a cota diária acabar, a Together AI (mesmo modelo, mesmo visual)."""
+    """Tenta a Cloudflare; se a cota diária acabar, a Modal (FLUX em GPU); por último a Together. Mesmo modelo, mesmo visual."""
+    global ULTIMO
     erros = []
-    for nome, tem, fn in (("Cloudflare", _tem_cf, _gerar_cf), ("Together", _tem_together, _gerar_together)):
+    for nome, tem, fn in _PROVEDORES:
         if nome in _ESGOTADOS or not tem():
             continue
         try:
-            return fn(prompt, w, h, passos)
+            im = fn(prompt, w, h, passos)
+            ULTIMO = nome
+            return im
         except CotaAcabou as e:
             _ESGOTADOS.add(nome)
             erros.append(f"{nome}: {e}")
@@ -158,7 +200,7 @@ def gerar(prompt, w, h, passos=4):
             erros.append(f"{nome}: {e}")
             if "acesso negado" in str(e):
                 _ESGOTADOS.add(nome)
-    ativos = [n for n, t in (("Cloudflare", _tem_cf), ("Together", _tem_together)) if t()]
+    ativos = [n for n, t, _ in _PROVEDORES if t()]
     if ativos and all(n in _ESGOTADOS for n in ativos):
-        raise CotaAcabou(" | ".join(erros) or "cota diária esgotada em: " + ", ".join(ativos))
+        raise CotaAcabou(" | ".join(erros) or "cota esgotada em: " + ", ".join(ativos))
     raise ErroNuvem(" | ".join(erros) or "nenhum provedor configurado")
