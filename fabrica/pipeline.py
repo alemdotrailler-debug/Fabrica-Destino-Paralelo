@@ -12,14 +12,18 @@ from fabrica.comum import RAIZ, carregar_roteiro, log, pasta_trabalho
 def relatorio_imagens(pasta, saida, modo, importadas_n):
     """saida/<slug>/imagens_<modo>.txt: quantas imagens vieram da Cloudflare, do modelo local e de você."""
     import glob
-    cont, locais = {"nuvem": 0, "local": 0}, []
+    cont, locais, erros = {"nuvem": 0, "local": 0}, [], []
     for f in glob.glob(os.path.join(pasta, "img", f"_fontes_*_{modo}.json")):
         for id_, fonte in json.load(open(f)).items():
+            if id_ == "_erro_nuvem":
+                erros.append(fonte)
+                continue
             cont[fonte] = cont.get(fonte, 0) + 1
             if fonte == "local":
                 locais.append(id_)
     txt = (f"Imagens ({modo}): Cloudflare/FLUX = {cont['nuvem']}, modelo local = {cont['local']}, suas = {importadas_n}\n"
-           + ("Geradas pelo modelo local (estilo diferente): " + ", ".join(sorted(locais)) + "\n" if locais else ""))
+           + ("Geradas pelo modelo local (estilo diferente): " + ", ".join(sorted(locais)) + "\n" if locais else "")
+           + ("Erros da Cloudflare: " + " | ".join(sorted(set(erros))) + "\n" if erros else ""))
     open(os.path.join(saida, f"imagens_{modo}.txt"), "w", encoding="utf-8").write(txt)
     log(txt.strip())
 
@@ -122,6 +126,14 @@ def main():
     if usadas:
         log(f"{usadas} imagens importadas por você")
     relatorio_imagens(pasta, saida, modo, usadas)
+    faltam = [c["id"] for c in plano.todas_as_imagens(R, modo)
+              if not os.path.exists(os.path.join(pasta, "img", c["id"] + ".jpg"))]
+    if faltam and os.environ.get("SEM_LOCAL") == "1":
+        # trava de qualidade: não monta vídeo com imagens faltando (ex.: cota diária da Cloudflare acabou)
+        open(os.path.join(saida, f"imagens_{modo}.txt"), "a", encoding="utf-8").write(
+            f"NAO MONTADO: faltaram {len(faltam)} imagens (cota da Cloudflare?). Rode de novo depois que a cota voltar (21h de Brasília).\n")
+        log(f"faltam {len(faltam)} imagens; vídeo NÃO montado")
+        return
     if a.miniaturas:
         log("miniaturas:", fazer_miniaturas(R, pasta, saida))
     elif not a.shorts:

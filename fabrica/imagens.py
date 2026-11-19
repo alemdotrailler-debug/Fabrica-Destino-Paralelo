@@ -110,10 +110,12 @@ def main():
                 fontes[c["id"]] = "nuvem"
                 log(f"nuvem {i+1}/{len(pendentes)} {c['id']}")
             except nuvem.CotaAcabou as e:
-                log("cota diária da Cloudflare acabou; o resto vai pelo modelo local:", e)
+                log("cota diária da Cloudflare acabou:", e)
+                fontes["_erro_nuvem"] = "COTA: " + str(e)[:300]
                 break
             except nuvem.ErroNuvem as e:
-                log("Cloudflare falhou nesta imagem (vai pelo modelo local):", e)
+                log("Cloudflare falhou nesta imagem:", e)
+                fontes["_erro_nuvem"] = str(e)[:300]
                 if "acesso negado" in str(e):
                     break
     elif pendentes and not a.local and not falso:
