@@ -120,7 +120,7 @@ jobs:
           case "${{ matrix.item.modo }}" in shorts) S="--shorts";; miniaturas) S="--miniaturas";; *) S="";; esac
           python -m fabrica.pipeline "videos/${{ matrix.item.slug }}" $S
       - name: Link público do vídeo (Release do GitHub)
-        if: ${{ !github.event.repository.private && github.ref_name == 'main' }}
+        if: ${{ !github.event.repository.private && github.ref_name == 'main' && matrix.item.modo != 'miniaturas' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
