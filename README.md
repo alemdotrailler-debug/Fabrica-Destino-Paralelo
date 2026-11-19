@@ -11,6 +11,14 @@ no GitHub Actions. Fábrica separada da Crónicas del Pergamino — nada é comp
    número em destaque), cria as miniaturas A/B e publica o MP4 em um Release.
 4. O resultado fica em `saida/<nome>/` (`info.json` com título, descrição com capítulos, tags, comentário fixado; `thumb_A.jpg`, `thumb_B.jpg`; `short_N.json`).
 
+## Usar suas próprias imagens (ex.: geradas no Tubefy)
+Em vez do modelo grátis, você pode mandar as imagens prontas:
+1. `python -m fabrica.cenas videos/<nome>` cria `videos/<nome>/cenas.txt` (lista numerada das cenas, só com a narração).
+2. Gere as imagens na sua ferramenta e nomeie com o número da cena: `001.png`, `002.png`… (ou ZIP) em `videos/<nome>/imagens/`.
+   Shorts: `imagens/short_1/`, `short_2/`, `short_3/` (vertical 9:16). Miniaturas: `imagens/miniatura_A.png`, `miniatura_B.png`.
+3. Cenas sem imagem repetem a anterior (padrão) — ou, com `IMAGENS_FALTANTES = "gerar"` no roteiro, o modelo grátis completa.
+A fábrica só gera o que não foi enviado; narração, legendas, selos, números, edição e miniaturas continuam automáticos.
+
 ## Formato do roteiro
 ```python
 SLUG = "titan"; TITULO = "E se Você Herdasse o Titã Fundador?"

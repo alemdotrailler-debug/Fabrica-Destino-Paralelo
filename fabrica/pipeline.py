@@ -5,7 +5,7 @@ Pré-requisito: as imagens já geradas em trabalho/<slug>/img (python -m fabrica
 Etapas: narração -> tempos -> legendas -> trilha -> edição (FFmpeg) -> miniaturas -> saida/<slug>/*.json
 """
 import argparse, json, os, shutil
-from fabrica import plano, narracao, legendas, audio, render, miniatura
+from fabrica import plano, narracao, legendas, audio, render, miniatura, importadas
 from fabrica.comum import RAIZ, carregar_roteiro, log, pasta_trabalho
 
 
@@ -65,6 +65,9 @@ def fazer_miniaturas(R, pasta, saida):
                              inclinar=t.get("inclinar", 0.0))
         k = escolha.get(letra, 0)
         origem = os.path.join(saida, f"thumb_{letra}_c{k}.jpg")
+        if not os.path.exists(origem):                       # ex.: base importada tem só o candidato 0
+            origem = next((os.path.join(saida, f"thumb_{letra}_c{j}.jpg") for j in range(n)
+                           if os.path.exists(os.path.join(saida, f"thumb_{letra}_c{j}.jpg"))), origem)
         if os.path.exists(origem):
             shutil.copy(origem, os.path.join(saida, f"thumb_{letra}.jpg"))
             principais.append(f"thumb_{letra}.jpg")
@@ -99,6 +102,10 @@ def main():
     pasta = pasta_trabalho(R.SLUG)
     saida = os.path.join(RAIZ, "saida", R.SLUG)
     os.makedirs(saida, exist_ok=True)
+    modo = "shorts" if a.shorts else ("miniaturas" if a.miniaturas else "longo")
+    usadas = importadas.aplicar(R, a.pasta, modo, os.path.join(pasta, "img"))   # imagens suas (Tubefy etc.), se houver
+    if usadas:
+        log(f"{usadas} imagens importadas por você")
     if a.miniaturas:
         log("miniaturas:", fazer_miniaturas(R, pasta, saida))
     elif not a.shorts:

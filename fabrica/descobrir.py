@@ -3,7 +3,7 @@
 Uso: python -m fabrica.descobrir "<pedidos separados por espaço>"   (saída JSON em duas linhas)
 """
 import json, math, os, sys
-from fabrica import plano
+from fabrica import plano, importadas
 from fabrica.comum import RAIZ, carregar_roteiro
 
 POR_LOTE = 18  # imagens por computador
@@ -15,8 +15,8 @@ def main(pedidos):
         slug, _, modo = p.partition(":")
         modo = modo if modo in ("shorts", "miniaturas") else "longo"
         R = carregar_roteiro(os.path.join(RAIZ, "videos", slug))
-        n = len(plano.todas_as_imagens(R, modo))
-        total = max(1, min(8, math.ceil(n / POR_LOTE)))
+        n = len(importadas.faltantes(R, os.path.join(RAIZ, "videos", slug), modo))   # só o que falta gerar
+        total = min(8, math.ceil(n / POR_LOTE))
         nome = f"{slug}-{modo}"
         itens.append(dict(slug=slug, modo=modo, nome=nome, imagens=n))
         for s in range(total):

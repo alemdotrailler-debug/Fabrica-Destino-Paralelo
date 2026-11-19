@@ -5,7 +5,7 @@ Cada cena vira trabalho/<slug>/img/<id>.jpg. Se o arquivo já existe, é pulado 
 Com FABRICA_IMAGENS=falso gera quadros de teste (só para testar a montagem sem modelo).
 """
 import argparse, os, sys
-from fabrica import plano
+from fabrica import plano, importadas
 from fabrica.comum import RAIZ, carregar_roteiro, log, pasta_trabalho
 
 # Modelo escolhido após testes no GitHub: SD-Turbo (2 passos, ~36 s/imagem em 768x432 na CPU) deu o melhor visual
@@ -71,7 +71,7 @@ def main():
     modo = "shorts" if a.shorts else ("miniaturas" if a.miniaturas else "longo")
     saida = os.path.join(pasta_trabalho(R.SLUG), "img")
     os.makedirs(saida, exist_ok=True)
-    todas = plano.todas_as_imagens(R, modo)
+    todas = importadas.faltantes(R, a.pasta, modo)          # o que você importou não precisa ser gerado
     minhas = [c for i, c in enumerate(todas) if i % a.total == a.lote]
     pendentes = [c for c in minhas if not os.path.exists(os.path.join(saida, c["id"] + ".jpg"))]
     log(f"{len(minhas)} imagens neste lote ({len(pendentes)} por fazer)")

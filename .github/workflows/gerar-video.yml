@@ -84,7 +84,8 @@ jobs:
 
   montar:
     needs: [descobrir, imagens]
-    if: ${{ needs.descobrir.outputs.itens != '[]' }}
+    # roda também quando o job de imagens foi pulado (todas as imagens vieram de você, sem nada a gerar)
+    if: ${{ !cancelled() && needs.descobrir.result == 'success' && needs.descobrir.outputs.itens != '[]' && (needs.imagens.result == 'success' || needs.imagens.result == 'skipped') }}
     runs-on: ubuntu-latest
     timeout-minutes: 300
     strategy:
@@ -109,6 +110,7 @@ jobs:
           path: modelos
           key: kokoro-v1.0
       - name: Baixar as imagens geradas
+        continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           pattern: img-${{ matrix.item.nome }}-*
