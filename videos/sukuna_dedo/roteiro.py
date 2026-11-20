@@ -7,8 +7,8 @@ TITULOS = [
     "E se Você Engolisse os 20 Dedos do Sukuna? Só Existe um Jeito de Sobreviver",  # números + curiosidade
     "E se o Sukuna Acordasse Dentro de Você? Dois Donos, Um Só Corpo",        # contraste
 ]
-PROTAG = ("cute chibi anime boy with short wavy chestnut-brown hair with a tiny cowlick, big green eyes, round glasses, "
-          "mustard-yellow hooded jacket with white drawstrings, small blue backpack")
+PROTAG = ("cute chibi anime boy with messy short black hair, big brown eyes, navy blue school blazer with white trim, "
+          "long red scarf")
 # Vilão ORIGINAL (papel do "Rei das Maldições" nas imagens): mesmo desenho em todas as cenas, sem copiar personagem existente.
 VILAO = ("an original chibi ancient demon king with pale grey skin cracked with golden lines, tall curved ram horns, "
          "a floating crown of golden thorns, glowing amber eyes with slit pupils, a sharp grin, "

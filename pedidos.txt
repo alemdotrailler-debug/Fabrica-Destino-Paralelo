@@ -1,2 +1,1 @@
-# usar modelo local se a Cloudflare estiver sem cota
-sukuna_dedo:shorts
+# (vazio: nenhum pedido pendente)

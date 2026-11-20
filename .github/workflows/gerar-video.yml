@@ -18,7 +18,7 @@ permissions:
 env:
   # "1" = só imagens da Cloudflare (FLUX); se a cota diária acabar, NÃO monta vídeo com imagens fracas.
   # Troque por "0" para permitir completar com o modelo local (SD-Turbo, qualidade menor).
-  SEM_LOCAL: "0"
+  SEM_LOCAL: "1"
 
 concurrency:
   group: gerar-destino
