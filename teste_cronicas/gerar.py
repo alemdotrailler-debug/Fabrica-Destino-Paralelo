@@ -2,15 +2,15 @@
 import base64, json, os, sys, time, urllib.request, urllib.error
 
 MODELO = "@cf/black-forest-labs/flux-1-schnell"
-ESTILO = ("Beautiful polished cartoon comic illustration, clean confident black outlines, soft cinematic lighting, "
-          "muted earthy color palette with warm sand, dusty ochre, terracotta, deep teal and soft gold, balanced contrast, "
-          "gentle desaturated tones, subtle gradients, rich atmospheric depth, expressive faces with large eyes, "
-          "detailed ancient Egypt setting, wide cinematic 16:9 composition, no text, no letters, no symbols on clothing. ")
+ESTILO = ("Beautiful polished cartoon comic illustration in a bold graphic novel style, thick confident black outlines, "
+          "dramatic cinematic lighting with strong contrast and deep shadows, rich but tasteful colors (not neon, not oversaturated): "
+          "warm gold, burnt orange, deep crimson, teal shadows, sandy beige, detailed textured backgrounds, expressive faces with large eyes, "
+          "wide cinematic composition, no text, no letters, no writing, no symbols on clothing. ")
 HEROI = "a young Egyptian commoner boy with messy black hair, big brown eyes and a plain cream linen tunic"
 PROMPTS = {
-    "teste2_1": f"{HEROI}, terrified, holding a clay jar full of dark red blood-colored water, the Nile river behind him turned blood red but a deep natural crimson, frogs jumping around his feet, a stern Pharaoh with blue and gold striped headdress glaring in the background, pyramids and a hazy dusty orange sky",
-    "teste2_2": "a grim elderly Pharaoh with blue and gold striped nemes headdress sitting on a golden throne, an old bearded man Moses in a brown robe holding a wooden staff standing in front of him, a large swarm of brown grasshopper-like locusts flying through the palace columns, dusty golden sky",
-    "teste2_3": f"{HEROI}, hiding with his family in total pitch darkness, only their huge scared white eyes visible glowing in the black, a tiny warm lit window of a house far away in the distance, thick heavy darkness plague in ancient Egypt",
+    "teste3_1": f"{HEROI}, standing on the muddy bank and holding a clay jar of thick dark red blood, looking horrified, the whole wide Nile river behind him is a deep crimson blood red from bank to bank with dead fish floating, palm trees, pyramids in the hazy distance, burnt orange sunset sky",
+    "teste3_2": "a grim Pharaoh with blue and gold striped nemes headdress seated on a golden throne in a grand palace hall, an elderly bearded man Moses in a brown robe holding a wooden staff standing calmly in front of him, a huge dark cloud of locusts, each a green-brown grasshopper with long jumping hind legs and antennae, swarming through the stone columns, golden dusty light",
+    "teste3_3": f"{HEROI}, huddled with his family inside a mud brick house in total thick darkness, one tiny flame-less shaft of faint blue moonlight, their wide frightened eyes barely visible in the black, a distant warm glowing window far away on the horizon, dramatic chiaroscuro",
 }
 
 
