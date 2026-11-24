@@ -1,0 +1,25 @@
+name: Imagens plagas
+on:
+  push:
+    branches: [teste-cronicas]
+    paths: ["plagas/prompts.json", "plagas/gerar_todas.py"]
+permissions:
+  contents: write
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 plagas/gerar_todas.py
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      - name: Salvar imagens
+        if: always()
+        run: |
+          git config user.name "fabrica"; git config user.email "fabrica@users.noreply.github.com"
+          git add plagas/imagens
+          git commit -m "Imagens plagas" || echo "nada"
+          git pull --rebase -X theirs origin teste-cronicas || true
+          git push origin HEAD:teste-cronicas
