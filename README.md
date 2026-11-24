@@ -42,4 +42,5 @@ Você tem {NUM:13|ANOS} de vida. {BOOM} || @H shocked, giant hourglass behind
 - Título "E se você…", narração em 2ª pessoa, blocos de escolha, slogan "Uma escolha. Mil consequências." no fecho.
 - Só anime. Nunca repetir tema (`temas_feitos.txt`). Herói original, sem desenhar personagens protegidos.
 - Roteiro longo 1.500–2.200 palavras; curto ~130.
-- Publicar sempre público; horários que o usuário diz são horário da Espanha (Madrid).
+- Publicar sempre público; no Destino Paralelo os horários que o usuário diz são horário de Brasília.
+- Visual: seguir `ESTILO.md` (anime chibi quente, contorno grosso, legenda amarela) e conferir `referencias/estilo/` antes de gerar imagens.
