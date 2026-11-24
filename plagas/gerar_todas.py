@@ -38,20 +38,17 @@ for nome, p in D["prompts"].items():
     if os.path.exists(arq):
         continue
     ok = False
-    for tent in range(4):
+    for tent in range(15):
         try:
             open(arq, "wb").write(pollinations(D["estilo"] + p, nome))
-            time.sleep(8)
+            time.sleep(46)
             log("ok", nome); ok = True; feitas += 1; break
         except urllib.error.HTTPError as e:
             msg = e.read().decode()[:200]
-            log("erro", nome, e.code, msg); salvar()
-            if e.code == 429 or "limit" in msg.lower():
-                time.sleep(20)
-            else:
-                time.sleep(6)
+            log("erro", nome, e.code, msg)
+            time.sleep(50)
         except Exception as e:
-            log("erro", nome, repr(e)[:200]); time.sleep(6)
+            log("erro", nome, repr(e)[:200]); time.sleep(30)
     if not ok:
         falhas.append(nome)
     if feitas and feitas % 5 == 0 and ok:

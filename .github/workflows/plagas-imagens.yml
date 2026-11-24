@@ -11,7 +11,7 @@ permissions:
 jobs:
   gerar:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - run: python3 plagas/gerar_todas.py
