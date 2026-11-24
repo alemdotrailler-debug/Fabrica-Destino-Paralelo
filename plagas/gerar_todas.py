@@ -33,7 +33,7 @@ for nome, p in D["prompts"].items():
             log("ok", nome); ok = True; feitas += 1; break
         except urllib.error.HTTPError as e:
             msg = e.read().decode()[:200]
-            log("erro", nome, e.code, msg)
+            log("erro", nome, e.code, msg); salvar()
             if e.code == 429 or "limit" in msg.lower():
                 time.sleep(20)
             else:
