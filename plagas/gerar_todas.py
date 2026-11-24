@@ -10,6 +10,7 @@ def chamar(corpo):
     with urllib.request.urlopen(req, timeout=60) as r:
         return json.loads(r.read().decode())
 
+os.makedirs("plagas/imagens", exist_ok=True)
 falhas = []
 LOG = open("plagas/log.txt", "a")
 def log(*a):
