@@ -161,4 +161,10 @@ erro p00_0 503 {"status":503,"success":false,"error":{"code":"SERVICE_UNAVAILABL
 erro p00_0 402 {"status":402,"success":false,"error":{"code":"FREE_LIMIT","message":"Free limit reached: 1 image every 45 seconds per IP. Retry after 21s, or get unlimited images with a pollen key at https://enter.p
 ok p00_1
 erro p00_2 402 {"status":402,"success":false,"error":{"code":"FREE_LIMIT","message":"Free limit reached: 1 image every 45 seconds per IP. Retry after 33s, or get unlimited images with a pollen key at https://enter.p
-erro p00_2 402 {"status":402,"success":false,"error":{"code":"FREE_LIMIT","message":"Free limit reached: 1 image every 45 seconds per IP. Retry after 11s, or get unlimited images with a pollen key at https://enter.p
+ok p01_1
+ok p01_2
+erro p02_0 503 {"status":503,"success":false,"error":{"code":"SERVICE_UNAVAILABLE","message":"The Classic API is at its limit right now. Retry after 10s, or get full access to every model with a pollen key at https:
+ok p02_0
+erro p02_1 503 {"status":503,"success":false,"error":{"code":"SERVICE_UNAVAILABLE","message":"The Classic API is at its limit right now. Retry after 10s, or get full access to every model with a pollen key at https:
+ok p02_1
+ok p02_2
