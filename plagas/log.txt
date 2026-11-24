@@ -158,3 +158,4 @@ FALHAS ['p00_0', 'p00_1', 'p00_2', 'p01_1', 'p01_2', 'p02_0', 'p02_1', 'p02_2', 
 erro p00_0 503 {"status":503,"success":false,"error":{"code":"SERVICE_UNAVAILABLE","message":"The Classic API is at its limit right now. Retry after 10s, or get full access to every model with a pollen key at https:
 erro p00_0 402 {"status":402,"success":false,"error":{"code":"FREE_LIMIT","message":"Free limit reached: 1 image every 45 seconds per IP. Retry after 21s, or get unlimited images with a pollen key at https://enter.p
 erro p00_0 503 {"status":503,"success":false,"error":{"code":"SERVICE_UNAVAILABLE","message":"The Classic API is at its limit right now. Retry after 10s, or get full access to every model with a pollen key at https:
+erro p00_0 402 {"status":402,"success":false,"error":{"code":"FREE_LIMIT","message":"Free limit reached: 1 image every 45 seconds per IP. Retry after 21s, or get unlimited images with a pollen key at https://enter.p
