@@ -3,6 +3,17 @@ import base64, json, os, subprocess, sys, time, urllib.request, urllib.error
 MODELO = "@cf/black-forest-labs/flux-1-schnell"
 D = json.load(open("plagas/prompts.json", encoding="utf-8"))
 
+import urllib.parse, random
+def pollinations(prompt, nome):
+    q = urllib.parse.quote(prompt[:1500])
+    url = f"https://image.pollinations.ai/prompt/{q}?width=1024&height=1024&model=flux&nologo=true&seed={random.randint(1,99999)}"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=120) as r:
+        b = r.read()
+    if len(b) < 20000 or b[:2] != b"\xff\xd8":
+        raise RuntimeError("resposta invalida %d" % len(b))
+    return b
+
 def chamar(corpo):
     url = f"https://api.cloudflare.com/client/v4/accounts/{os.environ['CF_ACCOUNT_ID']}/ai/run/{MODELO}"
     req = urllib.request.Request(url, data=json.dumps(corpo).encode(), method="POST", headers={
@@ -29,8 +40,8 @@ for nome, p in D["prompts"].items():
     ok = False
     for tent in range(4):
         try:
-            r = chamar({"prompt": (D["estilo"] + p)[:2000], "steps": 8})
-            open(arq, "wb").write(base64.b64decode(r["result"]["image"]))
+            open(arq, "wb").write(pollinations(D["estilo"] + p, nome))
+            time.sleep(8)
             log("ok", nome); ok = True; feitas += 1; break
         except urllib.error.HTTPError as e:
             msg = e.read().decode()[:200]
