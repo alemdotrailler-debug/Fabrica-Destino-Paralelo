@@ -3,6 +3,9 @@ on:
   push:
     branches: [teste-cronicas]
     paths: ["plagas/prompts.json", "plagas/gerar_todas.py"]
+concurrency:
+  group: plagas-imagens
+  cancel-in-progress: true
 permissions:
   contents: write
 jobs:
