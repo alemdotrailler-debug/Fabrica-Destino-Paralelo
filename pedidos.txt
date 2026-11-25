@@ -1,2 +1,3 @@
 # pedidos
+# nova tentativa 24/11 21h (cota Cloudflare renovada)
 hinata_pain:shorts
